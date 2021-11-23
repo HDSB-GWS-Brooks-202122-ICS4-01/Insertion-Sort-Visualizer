@@ -1,13 +1,14 @@
 # Madlibs Program - Rubric
 
-## Name:
+## Name:  Selim Abdelwahab
 
 ### Environment
+
 I used (*Greenfoot/JavaFx)* to complete this assignment.
 
 ### Sorting Algorithm
 
-I implemented a visualizer for the *XXXXXXXXXXXXXXXX* sort
+I implemented a visualizer for the Bubble Sort algorithm
 
 ### Self Evaluation
 
