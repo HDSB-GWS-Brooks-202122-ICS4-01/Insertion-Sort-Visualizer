@@ -1,6 +1,7 @@
 .ui-btn {
    -fx-background-color: rgb(229, 152, 102);
    -fx-text-fill: white;
+   -fx-cursor: hand;
 }
 
 .ui-btn:hover {

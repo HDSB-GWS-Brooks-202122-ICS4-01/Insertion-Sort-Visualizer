@@ -1,10 +1,14 @@
 import java.io.IOException;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
+import javafx.animation.FadeTransition;
 import javafx.fxml.FXML;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.util.Duration;
 
 public class SortController {
    private Rectangle[] array;
@@ -20,22 +24,33 @@ public class SortController {
 
    @FXML
    public void initialize() {
-      array = new Rectangle[grid.getColumnCount()];
+      double[] arrayHeights = App.getArray();
 
-      for (int i = 0; i < array.length; i++) {
-         Rectangle rect = (Rectangle) grid.getChildren().get(i);
-         double height = grid.getHeight();
+      if (arrayHeights != null && arrayHeights.length == grid.getColumnCount()) {
+         array = new Rectangle[arrayHeights.length];
 
-         System.out.println(grid.getHeight());
-         int rectHeight = (int)(RAND.nextDouble() * height);
+         for (int i = 0; i < array.length; i++) {
+            Rectangle rect = (Rectangle) grid.getChildren().get(i);
+            double height = arrayHeights[i];
 
-         rect.setFill(Color.RED);
-         // rect.setHeight(rectHeight);
+            if (height < 0.2)
+               height += 0.3;
 
-         System.out.println(height);
+            int rectHeight = (int) height;
 
-         array[i] = rect;
+            rect.setFill(Color.RED);
+            rect.setHeight(rectHeight);
+            rect.setOpacity(0);
+
+            FadeTransition fiTransition = new FadeTransition(Duration.seconds(3), rect);
+            fiTransition.setFromValue(0.0);
+            fiTransition.setToValue(1.0);
+            fiTransition.play();
+
+            array[i] = rect;
+         }
       }
+      // TIMER.schedule(CONFIG, 30);
    }
 
    /**
