@@ -14,6 +14,7 @@ import java.util.Random;
 public class App extends Application {
 
     private static Scene scene;
+    private static Stage stage;
     private static double[] array;
     public static Random RAND = new Random();
 
@@ -23,9 +24,18 @@ public class App extends Application {
         stage.setScene(scene);
         stage.show();
 
+        stage.setMinWidth(stage.getWidth());
+        stage.setMinHeight(stage.getHeight());
+
         stage.setOnCloseRequest(WindowEvent -> {
             System.exit(0);
         });
+
+        this.stage = stage;
+    }
+
+    static Stage getStage() {
+        return stage;
     }
 
     static public void setArray(double[] arr) {
