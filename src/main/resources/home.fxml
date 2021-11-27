@@ -83,7 +83,7 @@
                         <HBox>
                            <children>
                               <Pane HBox.hgrow="ALWAYS" />
-                              <Slider fx:id="slider_nor" blockIncrement="0.0" majorTickUnit="20.0" max="600.0" minWidth="325.0" minorTickCount="0" showTickLabels="true" showTickMarks="true" snapToTicks="true" style="-fx-stroke: white;" value="200.0" />
+                              <Slider fx:id="slider_nor" blockIncrement="0.0" majorTickUnit="20.0" max="600.0" minWidth="325.0" minorTickCount="0" showTickLabels="true" showTickMarks="true" snapToTicks="true" style="-fx-stroke: white;" value="50.0" />
                               <Pane HBox.hgrow="ALWAYS" />
                            </children>
                         </HBox>

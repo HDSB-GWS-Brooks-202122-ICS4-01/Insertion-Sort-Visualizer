@@ -15,7 +15,6 @@ import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
-import javafx.animation.TranslateTransition;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -38,21 +37,24 @@ import javafx.util.Duration;
  * Sort controller class
  */
 public class SortController {
-   private Rectangle[] array;
-   private Rectangle[] defaultArray;
-   private boolean oppositeDirection = false;
+   private Rectangle[] array;                   // Array containing all the rectangles
+   private Rectangle[] defaultArray;            // Copy of the array
+   private boolean oppositeDirection = false;   // Direction of comparisons
 
-   private int iSort = 0, jSort = 1;
-   private double inactiveOpacity = 0.2;
+   private int iSort = 0, jSort = 1;            // Acts as the i and j of a nested loop
+   private double inactiveOpacity = 0.1;        // The opacity of inactive rectangles
 
-   private Rectangle previous = null;
+   private Rectangle previous = null;           // Previous rectangle that was checked
 
-   private double autoTimeInterval = 1000;
-   private boolean sortComplete = false;
-   private boolean playAni = false;
+   private double autoTimeInterval = 1000;      // Time of auto sort
+   private boolean sortComplete = false;        // Boolean value for if the sort is complete
+   private boolean playAuto = false;            // Boolean value for the auto sort.
 
-   private int reminaingComparisons;
-   private int defaultRemainingComparisons;
+   private int reminaingComparisons;            // Number of remaining comparisions
+   private int defaultRemainingComparisons;     // A copy of the number of remaining comparisons
+
+   private boolean allowAdvance = true;         // If in an animation this is set to false
+   private boolean playAnimation = true;        // Play animations
 
    @FXML
    StackPane sp_root;
@@ -78,7 +80,7 @@ public class SortController {
    Label lbl_title, lbl_soa, lbl_nor, lbl_rc, lbl_mr, lbl_sr, lbl_pc, lbl_sc;
 
    @FXML
-   CheckBox cb_displayArrows;
+   CheckBox cb_displayArrows, cb_playAnimations;
 
    Timeline autoSort;
 
@@ -193,6 +195,13 @@ public class SortController {
             }
          });
 
+         cb_playAnimations.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            public void changed(ObservableValue<? extends Boolean> observableValue, Boolean wasChanging,
+                  Boolean changing) {
+               playAnimation = cb_playAnimations.isSelected();
+            }
+         });
+
          img_iArrow.setX(-img_iArrow.getFitWidth() / 3);
          img_jArrow.setX(-img_iArrow.getFitWidth() / 3);
 
@@ -213,8 +222,8 @@ public class SortController {
          @Override
          public void handle(ActionEvent ae) {
             // Call the sort method.
-            if (playAni)
-               sort(oppositeDirection, false);
+            if (playAuto && allowAdvance)
+               sort(false, oppositeDirection, false);
          }
       }));
 
@@ -234,6 +243,7 @@ public class SortController {
     */
    private void resetAnimation() {
       if (autoSort != null) {
+         // Every single one of those calls are neccessary or an infinite loop happens.
          autoSort.pause();
          autoSort.stop();
          autoSort.getKeyFrames().clear();
@@ -251,7 +261,7 @@ public class SortController {
     * @param isReveresed Direction of sort
     * @param fullSort    Sort all at once
     */
-   public void sort(boolean isReveresed, boolean fullSort) {
+   public void sort(boolean isStep, boolean isReveresed, boolean fullSort) {
       // Sort is already complete -> exit function
       if (sortComplete)
          return;
@@ -291,50 +301,102 @@ public class SortController {
       one.setOpacity(1.0);
       two.setOpacity(1.0);
 
+      // Set x positions of arrows
       if (!fullSort) {
-         // Set x positions of arrows
          img_iArrow.setX(one.getX() - img_iArrow.getFitWidth() / 3);
-
-         TranslateTransition jArrowAni = new TranslateTransition(Duration.millis(autoTimeInterval), img_jArrow);
-
-         jArrowAni.setToX(App.getRectWidth() * jSort - img_jArrow.getFitHeight());
-         jArrowAni.play();
+         img_jArrow.setX(two.getX() - img_iArrow.getFitWidth() / 3);
       }
-      // img_jArrow.setX(two.getX());
 
       // Check comparison
       if ((isReveresed && two.getHeight() > one.getHeight()) || (!isReveresed && two.getHeight() < one.getHeight())) {
-         double oneX = one.getX();
-         double twoX = two.getX();
+         double oneX = one.xProperty().getValue();
+         double twoX = two.xProperty().getValue();
 
-         // Change positions
-         one.setX(twoX);
-         two.setX(oneX);
+         if (!fullSort && playAnimation) {
+            allowAdvance = false;
 
-         array[iSort] = two;
-         array[jSort] = one;
+            // Create animation
+            Timeline ani = new Timeline();
+            KeyFrame transfer1;
+            KeyFrame transfer2;
 
-         sorted = true;
+            // Add keyframes
+            if (isStep) {
+               transfer1 = new KeyFrame(Duration.seconds(1), new KeyValue(two.xProperty(), oneX));
+               transfer2 = new KeyFrame(Duration.seconds(1), new KeyValue(one.xProperty(), twoX));
+            } else {
+               transfer1 = new KeyFrame(Duration.millis(autoTimeInterval), new KeyValue(two.xProperty(), oneX));
+               transfer2 = new KeyFrame(Duration.millis(autoTimeInterval), new KeyValue(one.xProperty(), twoX));
+            }
+
+            ani.getKeyFrames().addAll(transfer1, transfer2);
+            ani.play();
+            ani.setOnFinished((e) -> {
+               // Reset and set some values
+               allowAdvance = true;
+
+               array[iSort] = two;
+               array[jSort] = one;
+
+               increment(one, two);
+            });
+
+            sorted = true;
+         } else {
+            // Change positions
+            one.setX(twoX);
+            two.setX(oneX);
+
+            array[iSort] = two;
+            array[jSort] = one;
+
+            if (!playAnimation) {
+               increment(one, two);
+               sorted = true;
+            }
+         }
       }
 
-      // Set opacity
-      if (sorted) {
-         lbl_pc.setText("Positive Comparison: True");
-         two.setOpacity(1.0);
-
-         previous = one;
-      } else
+      if (!sorted) {
          lbl_pc.setText("Positive Comparison: False");
+
+         // Sorted so set color to green
+         if (jSort >= array.length - 1) {
+            one.setFill(Color.GREEN);
+            one.setOpacity(1.0);
+
+            iSort++;
+            jSort = iSort + 1;
+
+         } else {
+            // iterate to the next index.
+            jSort++;
+
+         }
+
+         reminaingComparisons--;
+
+         lbl_rc.setText("Remaining Comparisons: " + reminaingComparisons);
+      }
+   }
+
+   /**
+    * This method will increment the i and j sort values by one and also updat
+    * labels.
+    * 
+    * @param one The main rectangle
+    * @param two The sub rectangle
+    */
+   private void increment(Rectangle one, Rectangle two) {
+      lbl_pc.setText("Positive Comparison: True");
+      two.setOpacity(1.0);
+
+      previous = one;
 
       // Sorted so set color to green
       if (jSort >= array.length - 1) {
-         if (sorted) {
-            two.setFill(Color.GREEN);
-            two.setOpacity(1.0);
-         } else {
-            one.setFill(Color.GREEN);
-            one.setOpacity(1.0);
-         }
+         two.setFill(Color.GREEN);
+         two.setOpacity(1.0);
 
          iSort++;
          jSort = iSort + 1;
@@ -355,10 +417,10 @@ public class SortController {
     */
    @FXML
    public void runStep() {
-      if (!sortComplete) {
+      if (!sortComplete && allowAdvance) {
          resetAnimation();
 
-         sort(oppositeDirection, false);
+         sort(true, oppositeDirection, false);
       }
 
    }
@@ -368,7 +430,7 @@ public class SortController {
     */
    @FXML
    public void runAuto() {
-      playAni = true;
+      playAuto = true;
 
       updateAutoSort();
    }
@@ -397,8 +459,14 @@ public class SortController {
    @FXML
    public void runFullSort() {
       while (!sortComplete) {
-         sort(oppositeDirection, true);
+         sort(false, oppositeDirection, true);
       }
+
+      img_iArrow.setX(-img_iArrow.getFitWidth() / 3);
+      img_jArrow.setX(-img_jArrow.getFitWidth() / 3);
+
+      img_iArrow.setX(-img_iArrow.getFitWidth() / 3);
+      img_jArrow.setX(-img_iArrow.getFitWidth() / 3);
    }
 
    /**
@@ -452,11 +520,13 @@ public class SortController {
 
       sortComplete = false;
 
+      // Reset array
       array = Arrays.copyOf(defaultArray, defaultArray.length);
 
       iSort = 0;
       jSort = 1;
 
+      // Reset arrows
       img_iArrow.setX(-img_iArrow.getFitWidth() / 3);
       img_jArrow.setX(-img_jArrow.getFitWidth() / 3);
 
@@ -465,6 +535,7 @@ public class SortController {
 
       grid.getChildren().clear();
 
+      // Reset labels
       lbl_rc.setText("Remaining Comparisons: " + reminaingComparisons);
       lbl_mr.setText("Main Rectangle: 0");
       lbl_sr.setText("Sub Rectangle: 1");
@@ -502,7 +573,8 @@ public class SortController {
       Timeline timeline = new Timeline(
             new KeyFrame(Duration.seconds(1), new KeyValue(nextScene.translateYProperty(), 0, Interpolator.EASE_BOTH)),
             new KeyFrame(Duration.seconds(1),
-                  new KeyValue(hb_container.translateYProperty(), sp_root.getScene().getHeight(), Interpolator.EASE_BOTH)));
+                  new KeyValue(hb_container.translateYProperty(), sp_root.getScene().getHeight(),
+                        Interpolator.EASE_BOTH)));
       timeline.play();
 
       // Start animation
