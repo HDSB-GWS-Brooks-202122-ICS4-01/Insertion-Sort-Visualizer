@@ -1,0 +1,11 @@
+.btn-sort {
+   -fx-background-color:  transparent;
+   -fx-background-radius: 20;
+   -fx-border-color: black;
+   -fx-border-radius: 12.5;
+   -fx-border-width: 8;
+}
+
+.btn-sort:hover {
+   -fx-background-color:  rgb(107, 79, 79);
+}

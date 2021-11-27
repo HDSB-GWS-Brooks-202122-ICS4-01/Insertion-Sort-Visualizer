@@ -1,9 +1,11 @@
 .ui-btn {
-   -fx-background-color: rgb(229, 152, 102);
-   -fx-text-fill: white;
+   -fx-background-color: rgba(229, 152, 102, 0.5);
+   -fx-border-color: black;
+   -fx-border-width: 5px;
+   -fx-text-fill: rgba(255, 255, 255, 1.0);
    -fx-cursor: hand;
 }
 
-.ui-btn:hover {
+.ui-btn:hover, Slider:hover {
    -fx-background-color: rgb(220, 118, 51);
 }
