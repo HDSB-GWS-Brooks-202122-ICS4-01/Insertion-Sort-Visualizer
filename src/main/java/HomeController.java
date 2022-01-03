@@ -22,6 +22,9 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 
+/**
+ * Home controller class, handles all events and logic for the home screen.
+ */
 public class HomeController {
    @FXML
    StackPane sp_root;
