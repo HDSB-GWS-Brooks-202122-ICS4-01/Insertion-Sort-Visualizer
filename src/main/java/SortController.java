@@ -258,6 +258,7 @@ public class SortController {
     * This method will sort the array in a manner that corrosponds with the
     * paramateres
     * 
+    * @param isStep      If the method is being called as a single step
     * @param isReveresed Direction of sort
     * @param fullSort    Sort all at once
     */

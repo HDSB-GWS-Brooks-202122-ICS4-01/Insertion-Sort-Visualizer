@@ -55,7 +55,7 @@ public class App extends Application {
 
     /**
      * This method will set the width of the rectangles
-     * @param d
+     * @param width the integer width value of the rectangles
      */
     public static void setWidth(int width) {
         rectWidth = width;
