@@ -39,8 +39,8 @@ I believe that my program deserves a level 4+ because through my program I was a
 
 ### Level 4 Requirements
 
-- [ ] All level 3 requirements
-- [ ] Code is efficient
+- [x] All level 3 requirements
+- [x] Code is efficient
   - [ ] No *unnecessary* repetition of code
   - [ ] *Effective* data structures selected. (if applicable)
   - [ ] Loops and conditional statements have been used *effectively*. (if applicable)
@@ -48,11 +48,13 @@ I believe that my program deserves a level 4+ because through my program I was a
   - [ ] Information is passed between functions in a *meaningful* way (if applicable)
   - [ ] OO paradigms followed
   - [ ] etc.
-- [ ] User interface is a pleasure to use.
-- [ ] Program demonstrates thorough understanding of sorting algorithm selected.
-- [ ] Full documentation of code (including javadoc style headers for **every method**)
+- [x] User interface is a pleasure to use.
+- [x] Program demonstrates thorough understanding of sorting algorithm selected.
+- [x] Full documentation of code (including javadoc style headers for **every method**)
 
 
 
 ### Mr Brooks' Comments/Grade
+Code: L4+
+Documentation: L4+
 
